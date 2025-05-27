@@ -36,13 +36,13 @@ This repository provides two Python scripts that convert human-readable CSV mapp
 
 | Status          | Rules                               | StartDate   | EndDate    |
 | --------------- | ----------------------------------- | ----------- | ---------- |
-| Application 123 | applicant\_type = 'Private'\nOR ... | created\_at | closed\_at |
+| Application 123 | applicant\_type = 'Private'         | 2023/01/01  | 2024/01/01 |
 
 ### Lifecycle Map CSV (`lifecycle_map_converter.py`)
 
-| terms        | STATUS   | status\_code | status\_description | LIFECYCLE | PHASE | STAGE | STATE |
-| ------------ | -------- | ------------ | ------------------- | --------- | ----- | ----- | ----- |
-| application1 | Approved | STATE\_1     | Approved Phase      | ...       | ...   | ...   | ...   |
+| terms        | STATUS   | status\_code | status\_description |  PHASE | STAGE | STATE |
+| ------------ | -------- | ------------ | ------------------- |  ----- | ----- | ----- |
+| application1 | Approved | STATE\_1     | Approved Phase      |  ...   | ...   | ...   |
 
 ---
 
@@ -95,7 +95,6 @@ python lifecycle_map_converter.py
       "status_description": "Approved Phase"
     },
     "code_set": {
-      "LIFECYCLE": "Application",
       "PHASE": "Submission",
       "STAGE": "Review",
       "STATE": "STATE_1"
@@ -103,12 +102,6 @@ python lifecycle_map_converter.py
   }
 }
 ```
-
----
-
-## License
-
-MIT License
 
 ---
 
