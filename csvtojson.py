@@ -64,8 +64,10 @@ def convert(csv_path: str, json_path: str):
             end_col = row.get(rdr.fieldnames[3], '').strip()
 
             # normalize key
-            out_key = status_key.lower().replace(" ", "_")
-            out_key = out_key.replace("(", "").replace(")", "")
+            # out_key = status_key.lower().replace(" ", "_")
+            # out_key = out_key.replace("(", "").replace(")", "")
+            out_key = status_key.strip()  # preserve original formatting
+
 
             # build entry
             entry: dict[str, object] = {}

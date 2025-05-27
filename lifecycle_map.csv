@@ -1,0 +1,20 @@
+Converted_Status,Status,Status_code,Status_description ,Phase,Stage,State
+Draft_Pre-application,New,,,Application,Pre-Application,Draft
+Submitted_Pre-application,Submitted,,,Permitting,Pr-Application,Submitted
+Submission_review_Initial_submission_review,,,,Permitting,Initial Submission Review,Submission review
+Rejected_Initial_submission_review,,,,Permitting,Initial Submission Review,Rejected
+Withdrawn_Initial_submission_review,Close,,,Permitting,Initial Submission Review,Withdrawn
+On hold_Initial_submission_review,,,,Permitting,Initial Submission Review,On hold
+Technical_Review_Technical _Review_and_Comment,Accepted,,,Permitting,Technical Review and Comment,Technical Review
+Referral_Technical _Review_and_Comment,,,,Permitting,Technical Review and Comment,Referral
+First_Nation's_Consultation_Technical _Review_and_Comment,,,,Permitting,Technical Review and Comment,First Nation's Consultation
+Review Completion and or Recommendation_Technical _Review_and_Comment,,,,Permitting,Technical Review and Comment,Review Completion Recommendation
+Rejected_Technical _Review_and_Comment,,,,Permitting,Technical Review and Comment,Rejected
+Withdrawn_Technical _Review_and_Comment,Close,,,Permitting,Technical Review and Comment,Withdrawn
+On hold_Technical _Review_and_Comment,,,,Permitting,Technical Review and Comment,On hold
+Decision Review_Decision,,,,Permitting,Decision,Decision Review
+Allowed_Decision,Allowed or Offered,,,Permitting,Decision,Allowed
+Disallowed_Decision,DI,,,Permitting,Decision,Disallowed
+Offered_Issuance,Offered,,,Permitting,Issuance,Offered
+Issued_Issuance,GS,,,Permitting,Issuance,Issued
+Declined_Issuance,Offer Not Accepted,,,Permitting,Issuance,Declined
