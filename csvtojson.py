@@ -1,93 +1,137 @@
-import csv, json, re, sys, pathlib
+from __future__ import annotations
 
-# ------------ helpers ------------------------------------------------------
-def parse_condition(txt: str):
-    txt = txt.strip().rstrip(',')
-    # 1) >=, <=, >, <  (column-to-column)
-    m = re.match(r"(\w+)\s*(>=|<=|>|<)\s*(\w+)", txt, re.I)
-    if m:
-        col, op, other = m.groups()
-        return {"attr": col, "op": op, "other_attr": other}
-
-    # 2) IS NOT NULL / IS NULL
-    m = re.match(r"(\w+)\s+IS\s+(NOT\s+)?NULL", txt, re.I)
-    if m:
-        col, notnull = m.groups()
-        return {"attr": col, "op": "not_null" if notnull else "null"}
-
-    # 3) equality with quoted value
-    m = re.match(r"(\w+)\s*=\s*'([^']+)'", txt)
-    if m:
-        col, val = m.groups()
-        return {"attr": col, "op": "=", "value": val}
-
-    # 4) equality without quotes
-    m = re.match(r"(\w+)\s*=\s*(\S+)", txt)
-    if m:
-        col, val = m.groups()
-        return {"attr": col, "op": "=", "value": val}
-
-    # fallback → regex
-    return {"attr": txt, "op": "regex", "value": ".*"}
+import csv
+import json
+import re
+import sys
+from pathlib import Path
+from typing import Dict, List, Tuple
 
 
-def parse_rule_cell(cell: str):
-    """
-    Returns a dict:  { "logic": {...} }
-    If a line contains " OR ", split into OR conditions; else AND.
-    """
-    # split on real newlines first
-    lines = [l for l in cell.splitlines() if l.strip()]
-    and_nodes = []
-    for line in lines:
-        if " OR " in line.upper():
-            or_parts = [p.strip() for p in re.split(r"\s+OR\s+", line, flags=re.I)]
-            or_nodes = [parse_condition(p) for p in or_parts if p]
-            and_nodes.append({"or": or_nodes})
+
+def canon(col: str) -> str:
+    return col.strip()
+
+# ─────────────────────────── regex patterns ────────────────────────────
+_COL = r"(?!IS\b|NOT\b)([A-Z][A-Z0-9_]{2,})"
+
+CMP_PAT       = re.compile(rf"^{_COL}\s*(>=|<=|>|<)\s*{_COL}\b", re.I)
+NULL_PAT      = re.compile(rf"^{_COL}\s+IS\s+(NOT\s+)?NULL\b", re.I)
+STR_EQ_PAT    = re.compile(rf"^{_COL}\s*=\s*'([^']+)'", re.I)
+BARE_EQ_PAT   = re.compile(rf"^{_COL}\s*=\s*([A-Z0-9]+)", re.I)
+
+PATTERNS: List[Tuple[re.Pattern, callable]] = [
+    (CMP_PAT,     lambda m: {"attr": canon(m.group(1)),
+                             "op":   m.group(2),
+                             "other_attr": canon(m.group(3))}),
+    (NULL_PAT,    lambda m: {"attr": canon(m.group(1)),
+                             "op":   "not_null" if m.group(2) else "null"}),
+    (STR_EQ_PAT,  lambda m: {"attr": canon(m.group(1)),
+                             "op":   "=",
+                             "value": m.group(2)}),
+    (BARE_EQ_PAT, lambda m: {"attr": canon(m.group(1)),
+                             "op":   "=",
+                             "value": m.group(2)}),
+]
+
+# whitespace that *starts* a new clause
+SPLIT_WS = re.compile(rf"\s+(?={_COL}\s*(?:IS\b|>=|<=|>|<|=))", re.I)
+
+# ───────────────────────── helper functions ────────────────────────────
+def _normalise(txt: str) -> str:
+    """Tidy a raw rule fragment."""
+    txt = txt.strip()
+    txt = re.sub(r"[,\s]+$", "", txt) 
+    txt = re.sub(r"<\s*=", "<=", txt)
+    txt = re.sub(r">\s*=", ">=", txt)
+    txt = re.sub(r"\bIS\s+NOT\s+NUL\b", "IS NOT NULL", txt, flags=re.I)
+    return re.sub(r"\b(?:AND|OR)\b\s*$", "", txt, flags=re.I).strip()
+
+def tokenise(fragment: str) -> List[Dict]:
+    """Return a list of parsed mini-clauses for one raw fragment."""
+    out: List[Dict] = []
+    queue = [_normalise(fragment)]
+
+    while queue:
+        frag = queue.pop(0)
+        if not frag:
+            continue
+
+        for pat, build in PATTERNS:
+            m = pat.match(frag)
+            if m:
+                out.append(build(m))
+                remainder = _normalise(frag[m.end():])
+                if remainder:
+                    queue.insert(0, remainder)
+                break
+        else:                                                   # no match
+            parts = [p.strip() for p in SPLIT_WS.split(frag) if p.strip()]
+            if len(parts) == 1:                                 # give up → regex
+                out.append({"attr": canon(frag), "op": "regex", "value": ".*"})
+            else:
+                queue = parts + queue
+    return out
+
+def parse_rule_cell(cell: str) -> Dict:
+    """Convert multi-line Rules cell → nested AND/OR JSON structure."""
+    and_nodes: List[Dict] = []
+
+    for raw in (ln for ln in cell.splitlines() if ln.strip()):
+        upper = raw.upper()
+        if " OR " in upper:
+            parts = re.split(r"\s+OR\s+", raw, flags=re.I)
+            or_list = [n for p in parts for n in tokenise(p)]
+            and_nodes.append({"or": or_list})
         else:
-            and_nodes.append(parse_condition(line))
-    return {"logic": {"and": and_nodes}}
+            and_nodes.extend(tokenise(raw))
+    return {"logic": {"and": and_nodes}} if and_nodes else {"logic": {"and": []}}
 
-# ------------ main ---------------------------------------------------------
-def convert(csv_path: str, json_path: str):
-    out: dict[str, dict] = {}
-    with open(csv_path, newline='', encoding='utf-8') as fh:
+def make_status_key(raw: str) -> str:
+    key = re.sub(r"['\"]", "", raw.strip())  # strip quotes/apostrophes
+    key = re.sub(r"\s+", "_", key)           # any whitespace → _
+    key = re.sub(r"_+", "_", key)            # collapse dup underscores
+    return key
+
+# ─────────────────────── CSV ➜ JSON converter ──────────────────────────
+def convert(csv_path: Path, json_path: Path) -> None:
+    out: Dict[str, Dict] = {}
+
+    with csv_path.open(newline="", encoding="utf-8") as fh:
         rdr = csv.DictReader(fh)
-        # Expect header: Status, Rules, StartDate, EndDate
-        status_col, rules_col = rdr.fieldnames[0], rdr.fieldnames[1]
-        date_cols = rdr.fieldnames[2:]
+        if not rdr.fieldnames or len(rdr.fieldnames) < 3:
+            sys.exit("CSV needs at least 3 columns: Status, Rules, StartDate…")
+
+        status_col = rdr.fieldnames[0]
+        rules_col  = rdr.fieldnames[1]
+        start_col  = rdr.fieldnames[2]
+        end_col    = rdr.fieldnames[3] if len(rdr.fieldnames) > 3 else None
+
         for row in rdr:
-            status_key = row[status_col].strip()
-            rules_cell = row[rules_col] or ''
-            # read optional date columns
-            start_col = row.get(rdr.fieldnames[2], '').strip()
-            end_col = row.get(rdr.fieldnames[3], '').strip()
+            base_key = make_status_key(row[status_col])
+            rule_text = row.get(rules_col, "") or ""
 
-            # normalize key
-            # out_key = status_key.lower().replace(" ", "_")
-            # out_key = out_key.replace("(", "").replace(")", "")
-            out_key = status_key.strip()  # preserve original formatting
+            entry: Dict[str, object] = {}
 
+            if s := row.get(start_col, "").strip():
+                entry["start_date"] = {"attr": canon(s), "op": "not_null"}
+            if end_col and (e := row.get(end_col, "").strip()):
+                entry["end_date"] = {"attr": canon(e), "op": "not_null"}
 
-            # build entry
-            entry: dict[str, object] = {}
-            if start_col:
-                entry['start_date'] = {"attr": start_col, "op": "not_null"}
-            if end_col:
-                entry['end_date'] = {"attr": end_col, "op": "not_null"}
+            entry.update(parse_rule_cell(rule_text))
 
-            # parse logic rules
-            logic = parse_rule_cell(rules_cell).get('logic', {})
-            entry['logic'] = logic
+            key = base_key
+            suffix = 1
+            while key in out:
+                suffix += 1
+                key = f"{base_key}_{suffix}"
+            out[key] = entry
 
-            out[out_key] = entry
+    json_path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[csv2json] wrote {json_path}  ({len(out)} status blocks)")
 
-    with open(json_path, 'w', encoding='utf-8') as f:
-        json.dump(out, f, ensure_ascii=False, indent=2)
-    print(f"[csv2json]  wrote  {json_path}")
-
+# ───────────────────────────── CLI ──────────────────────────────────────
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         sys.exit("Usage: csv2json_rules.py <rules.csv> <rules.json>")
-    convert(sys.argv[1], sys.argv[2])
-    # convert(pathlib.Path(__file__).parent / "rules.csv", "rules.json")
+    convert(Path(sys.argv[1]), Path(sys.argv[2]))
