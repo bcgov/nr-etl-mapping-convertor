@@ -1,31 +1,20 @@
 Converted_Status,Status,Status_code,Status_description ,Phase,Stage,State
-Draft_Pre-application,New,,,APPLICATION,PRE-APPLICATION,DRAFT
-Submitted_Pre-application,Submitted,,,PERMITTING,PR-APPLICATION,SUBMITTED
-Submission_review_Initial_submission_review_nodate,,,,PERMITTING,INITIAL SUBMISSION REVIEW,SUBMISSION REVIEW
-Submission_review_Initial_submission_review,,,,PERMITTING,INITIAL SUBMISSION REVIEW,SUBMISSION REVIEW
-Rejected_Initial_submission_review,,,,PERMITTING,INITIAL SUBMISSION REVIEW,REJECTED
-Withdrawn_Initial_submission_review,Close,,,PERMITTING,INITIAL SUBMISSION REVIEW,WITHDRAWN
-Withdrawn_Initial_submission_review_nullaccept,Close,,,PERMITTING,INITIAL SUBMISSION REVIEW,WITHDRAWN
-On_Hold_Initial_Submission_Review_onholdenddate,,,,PERMITTING,INITIAL SUBMISSION REVIEW,ON HOLD
-On_Hold_Initial_Submission_Review_fcbc,,,,PERMITTING,INITIAL SUBMISSION REVIEW,ON HOLD
-On_Hold_Initial_Submission_Review,,,,PERMITTING,INITIAL SUBMISSION REVIEW,ON HOLD
-Technical_Review_Technical_Review_and_Comment,Accepted,,,PERMITTING,TECHNICAL REVIEW AND COMMENT,TECHNICAL REVIEW
-Referral_Technical _Review_and_Comment,,,,PERMITTING,TECHNICAL REVIEW AND COMMENT,REFERRAL
-First_Nation's_Consultation_Technical _Review_and_Comment_noenddate,,,,PERMITTING,TECHNICAL REVIEW AND COMMENT,FIRST NATION'S CONSULTATION
-First_Nation's_Consultation_Technical _Review_and_Comment,,,,PERMITTING,TECHNICAL REVIEW AND COMMENT,FIRST NATION'S CONSULTATION
-Review_Completion_Recommendation_Technical _Review_and_Comment,,,,PERMITTING,TECHNICAL REVIEW AND COMMENT,REVIEW COMPLETION RECOMMENDATION
-Rejected_Technical _Review_and_Comment,,,,PERMITTING,TECHNICAL REVIEW AND COMMENT,REJECTED
-Withdrawn_Technical_Review_and_Comment,Close,,,PERMITTING,TECHNICAL REVIEW AND COMMENT,WITHDRAWN
-On_Hold_Technical_Review_and_Comment_Reporteddate,,,,PERMITTING,TECHNICAL REVIEW AND COMMENT,ON HOLD
-On_Hold_Technical_Review_and_Comment_FCBCNOTNULL,,,,PERMITTING,TECHNICAL REVIEW AND COMMENT,ON HOLD
-On_Hold_Technical_Review_and_Comment,,,,PERMITTING,TECHNICAL REVIEW AND COMMENT,ON HOLD
-On_Hold_Decision_withenddate,,,,PERMITTING,TECHNICAL REVIEW AND COMMENT,ON HOLD
-On_Hold_Decision,,,,PERMITTING,TECHNICAL REVIEW AND COMMENT,ON HOLD
-Decision_Review_Decision,,,,PERMITTING,DECISION,DECISION REVIEW
-Allowed_Decision,Allowed or Offered,,,PERMITTING,DECISION,ALLOWED
-Disallowed_Decision,DI,,,PERMITTING,DECISION,DISALLOWED
-Offered_Issuance,Offered,,,PERMITTING,ISSUANCE,OFFERED
-Issued_Issuance,GS,,,PERMITTING,ISSUANCE,ISSUED
-Declined_Issuance,Offer Not Accepted,,,PERMITTING,ISSUANCE,DECLINED
-Declined_Issuance_withonhold,Offer Not Accepted,,,PERMITTING,ISSUANCE,DECLINED
-Withdrawn_Decision,,,,PERMITTING,INITIAL SUBMISSION REVIEW,WITHDRAWN
+Allowed_Decision,Allowed,AL,,PERMITTING,DECISION,ALLOWED
+Decision_Review_Decision,,,,PERMITTING,DECISION,DECISION_REVIEW
+Declined_Issuance,Offer Not Accepted,ON,,PERMITTING,ISSUANCE,DECLINED
+Disallowed_Decision,Disallowed,DI,,PERMITTING,DECISION,DISALLOWED
+Draft_Pre-application,New,,,APPLICATION,PRE_APPLICATION,DRAFT
+First_Nations_Consultation_Technical_Review_and_Comment_noenddate,,,,PERMITTING,TECH_REVIEW_COMMENT,FIRST_NATIONS_CONSULTATION
+First_Nations_Consultation_Technical_Review_and_Comment,,,,PERMITTING,TECH_REVIEW_COMMENT,FIRST_NATIONS_CONSULTATION
+Issued_Issuance,GS,GS,,PERMITTING,ISSUANCE,ISSUED
+Offered_Issuance,Offered,OF,,PERMITTING,ISSUANCE,OFFERED
+Rejected_Initial_submission_review,,,,PERMITTING,INITIAL_SUBMISSION_REVIEW,REJECTED
+Submission_review_Initial_submission_review_nodate,,,,PERMITTING,INITIAL_SUBMISSION_REVIEW,SUBMISSION_REVIEW
+Submission_review_Initial_submission_review,,,,PERMITTING,INITIAL_SUBMISSION_REVIEW,SUBMISSION_REVIEW
+Submitted_Pre-application,Submitted,,,PERMITTING,PRE_APPLICATION,SUBMITTED
+Review_Completion_Recommendation_Technical_Review_and_Comment,,,,PERMITTING,TECH_REVIEW_COMMENT,TECH_REVIEW_COMPLETED
+Technical_Review_Technical_Review_and_Comment,Accepted,,,PERMITTING,TECH_REVIEW_COMMENT,TECHNICAL_REVIEW
+Withdrawn_Initial_submission_review,Close,,,PERMITTING,INITIAL_SUBMISSION_REVIEW,WITHDRAWN
+Withdrawn_Initial_submission_review_nullaccept,Close,,,PERMITTING,INITIAL_SUBMISSION_REVIEW,WITHDRAWN
+Withdrawn_Technical_Review_and_Comment,Close,,,PERMITTING,TECH_REVIEW_COMMENT,WITHDRAWN
+Withdrawn_Decision,,,,PERMITTING,DECISION,WITHDRAWN
